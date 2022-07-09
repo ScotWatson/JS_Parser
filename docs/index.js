@@ -34,20 +34,10 @@ function UTF16SurrogatePairToCodePoint(lead, trail) {
   });
 }
 
-class Record_CodePointAt {
-  #CodePoint;
-  #CodeUnitCount;
-  #IsUnpairedSurrogate;
-  constructor(arg1, arg2, arg3) {
-    #CodePoint = arg1;
-    #CodeUnitCount = arg2;
-    #IsUnpairedSurrogate = arg3;
-  }
-}
 // 11.1.4 Static Semantics:
 // Argument: string (a String)
 // Argument: position (a non-negative integer)
-// Returns: Record with fields [[CodePoint]] (a code point), [[CodeUnitCount]] (a positive integer), and [[IsUnpairedSurrogate]] (a Boolean).
+// Returns: (Object) Record with fields [[CodePoint]] (a code point), [[CodeUnitCount]] (a positive integer), and [[IsUnpairedSurrogate]] (a Boolean).
 // It interprets string as a sequence of UTF-16 encoded code points, as described in 6.1.4, and reads from it a single code point starting with the code unit at index position.
 function CodePointAt(string, position) {
   let size = string.length;
@@ -58,17 +48,33 @@ function CodePointAt(string, position) {
   let first_value = first.charCodeAt(0);
   let cp = new UnicodeCodePoint(first_value);
   if (!isLeadingSurrogate(first) && !isTrailingSurrogate(first)) {
-    return Record_CodePointAt(cp,  1,  false);
+    return {
+      CodePoint: cp,
+      CodeUnitCount: 1,
+      IsUnpairedSurrogate: false,
+    };
   }
   if (isTrailingSurrogate(first) || (position + 1) === size) {
-    return Record_CodePointAt(cp, 1, true);
+    return {
+      CodePoint: cp,
+      CodeUnitCount: 1,
+      IsUnpairedSurrogate: true,
+    };
   }
-  let second =string.charAt(position + 1);
+  let second = string.charAt(position + 1);
   if (!isTrailingSurrogate(second)) {
-    return Record_CodePointAt(cp, 1, true);
+    return {
+      CodePoint: cp,
+      CodeUnitCount: 1,
+      IsUnpairedSurrogate: true,
+    };
   }
   cp = UTF16SurrogatePairToCodePoint(first, second);
-  return Record_CodePointAt(cp, 2, false);
+  return {
+    CodePoint: cp,
+    CodeUnitCount: 2,
+    IsUnpairedSurrogate: false
+  };
   function isLeadingSurrogate(val) {
     return (val >= 0xD800 && val < 0xDC00);
   }
