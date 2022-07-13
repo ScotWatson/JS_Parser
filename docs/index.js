@@ -3,6 +3,9 @@
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import * as Sequence from "https://scotwatson.github.io/Sequence/Sequence.mjs"
+import * as Unicode from "https://scotwatson.github.io/Unicode/Unicode.mjs"
+
 // 11.1.1 Static Semantics: 
 // Argument: cp (a Unicode code point)
 // Returns: (String)
@@ -83,25 +86,52 @@ function CodePointAt(string, position) {
   }
 }
 
+// 11.1.5 Static Semantics:
+// Argument: string (String)
+// Return: (a List of code points)
+// It returns the sequence of Unicode code points that results from interpreting string as UTF-16 encoded Unicode text as described in 6.1.4.
+function StringToCodePoints(string) {
+  let codePoints = new Sequence.Sequence(Unicode.UnicodeCodePoint);
+  let size = string.length;
+  let position = 0;
+  while (position < size) {
+    let cp = CodePointAt(string, position).
+    codePoints.push(cp);
+    position = position + cp.toString().length.
+  }
+  return codePoints;
+}
 
+// 11.1.6 Static Semantics: 
+// Argument: sourceText (Sequence of Unicode code points)
+// Argument: goalSymbol (a nonterminal in one of the ECMAScript grammars)
+// Return: (a Parse Node or a non-empty List of SyntaxError objects)
+function ParseText(sourceText, goalSymbol) {
+//    1. Attempt to parse sourceText using goalSymbol as the goal symbol, and analyse the parse result for any early error conditions. Parsing and early error detection may be interleaved in an implementation-defined manner.
+//    2. If the parse succeeded and no early errors were found, return the Parse Node (an instance of goalSymbol) at the root of the parse tree resulting from the parse.
+//    3. Otherwise, return a List of one or more SyntaxError objects representing the parsing errors and/or early errors. If more than one parsing error or early error is present, the number and ordering of error objects in the list is implementation-defined, but at least one must be present.
+}
 
-11.1.5 Static Semantics: StringToCodePoints ( string )
+function isWhitespace(cp) {
+  switch (cp.valueOf()) {
+    case 0x0009:
+    case 0x000B:
+    case 0x000C:
+    case 0xFEFF:
+      return true;
+    default:
+      return (cp.category === "Zs");
+  }
+}
 
-The abstract operation StringToCodePoints takes argument string (a String) and returns a List of code points. It returns the sequence of Unicode code points that results from interpreting string as UTF-16 encoded Unicode text as described in 6.1.4. It performs the following steps when called:
-
-    1. Let codePoints be a new empty List.
-    2. Let size be the length of string.
-    3. Let position be 0.
-    4. Repeat, while position < size,
-        a. Let cp be CodePointAt(string, position).
-        b. Append cp.[[CodePoint]] to codePoints.
-        c. Set position to position + cp.[[CodeUnitCount]].
-    5. Return codePoints.
-
-11.1.6 Static Semantics: ParseText ( sourceText, goalSymbol )
-
-The abstract operation ParseText takes arguments sourceText (a sequence of Unicode code points) and goalSymbol (a nonterminal in one of the ECMAScript grammars) and returns a Parse Node or a non-empty List of SyntaxError objects. It performs the following steps when called:
-
-    1. Attempt to parse sourceText using goalSymbol as the goal symbol, and analyse the parse result for any early error conditions. Parsing and early error detection may be interleaved in an implementation-defined manner.
-    2. If the parse succeeded and no early errors were found, return the Parse Node (an instance of goalSymbol) at the root of the parse tree resulting from the parse.
-    3. Otherwise, return a List of one or more SyntaxError objects representing the parsing errors and/or early errors. If more than one parsing error or early error is present, the number and ordering of error objects in the list is implementation-defined, but at least one must be present.
+function isLineTerminator(cp) {
+  switch (cp.valueOf()) {
+    case 0x000A:
+    case 0x000D:
+    case 0x2028:
+    case 0x2029:
+      return true;
+    default:
+      return false;
+  }
+}
